@@ -66,6 +66,7 @@ module Hydra #:nodoc:
       @autosort = opts.fetch('autosort') { true }
       @sync = opts.fetch('sync') { nil }
       @environment = opts.fetch('environment') { 'test' }
+      @remote_require = opts.fetch('remote_require') {[]}
 
       if @autosort
         sort_files_from_report
@@ -165,9 +166,11 @@ module Hydra #:nodoc:
     def boot_ssh_worker(worker)
       sync = Sync.new(worker, @sync, @verbose)
 
+      custom_require = @remote_require.map {|r| " require '#{r}';"}.join(' ')
+
       runners = worker.fetch('runners') { raise "You must specify the number of runners"  }
       command = worker.fetch('command') {
-        "RAILS_ENV=#{@environment} ruby -e \"require 'rubygems'; require 'hydra'; Hydra::Worker.new(:io => Hydra::Stdio.new, :runners => #{runners}, :verbose => #{@verbose});\""
+        "RAILS_ENV=#{@environment} ruby -e \"require 'rubygems'; require 'hydra';#{custom_require} Hydra::Worker.new(:io => Hydra::Stdio.new, :runners => #{runners}, :verbose => #{@verbose});\""
       }
 
       trace "Booting SSH worker"

@@ -36,6 +36,11 @@ module Hydra #:nodoc:
     # files that may not play nice with others.
     attr_accessor :serial
 
+    # When running remote workers with extensions to hydra (such as 
+    # custom messages), you will need to make those extensions 
+    # available to the remote workers by specifying them here.
+    attr_accessor :remote_require
+
     #
     # Search for the hydra config file
     def find_config_file
@@ -64,6 +69,7 @@ module Hydra #:nodoc:
   #     t.add_files 'test/integration/**/*_test.rb'
   #     t.verbose = false # optionally set to true for lots of debug messages
   #     t.autosort = false # disable automatic sorting based on runtime of tests
+  #     t.remote_require << 'hydra_extensions'
   #   end
   class TestTask < Hydra::Task
 
@@ -75,6 +81,7 @@ module Hydra #:nodoc:
       @autosort = true
       @serial = false
       @listeners = [Hydra::Listener::ProgressBar.new]
+      @remote_require = []
 
       yield self if block_given?
 
@@ -89,7 +96,8 @@ module Hydra #:nodoc:
         :verbose => @verbose,
         :autosort => @autosort,
         :files => @files,
-        :listeners => @listeners
+        :listeners => @listeners,
+        :remote_require => @remote_require
       }
       if @config
         @opts.merge!(:config => @config)

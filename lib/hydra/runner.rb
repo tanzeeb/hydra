@@ -56,6 +56,14 @@ module Hydra #:nodoc:
       @running = false
     end
 
+    def format_ex_in_file(file, ex)
+      "Error in #{file}:\n  #{format_exception(ex)}"
+    end
+
+    def format_exception(ex)
+      "#{ex.class.name}: #{ex.message}\n    #{ex.backtrace.join("\n    ")}"
+    end
+
     private
 
     # The runner will continually read messages and handle them.
@@ -77,14 +85,6 @@ module Hydra #:nodoc:
           @running = false
         end
       end
-    end
-
-    def format_ex_in_file(file, ex)
-      "Error in #{file}:\n  #{format_exception(ex)}"
-    end
-
-    def format_exception(ex)
-      "#{ex.class.name}: #{ex.message}\n    #{ex.backtrace.join("\n    ")}"
     end
 
     # Run all the Test::Unit Suites in a ruby file
