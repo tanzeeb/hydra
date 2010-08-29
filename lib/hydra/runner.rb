@@ -80,6 +80,14 @@ module Hydra #:nodoc:
       end
     end
 
+    def format_ex_in_file(file, ex)
+      "Error in #{file}:\n  #{format_exception(ex)}"
+    end
+
+    def format_exception(ex)
+      "#{ex.class.name}: #{ex.message}\n    #{ex.backtrace.join("\n    ")}"
+    end
+
     # Run all the Test::Unit Suites in a ruby file
     def run_test_unit_file(file)
       begin
@@ -89,7 +97,7 @@ module Hydra #:nodoc:
         return ex.to_s
       rescue Exception => ex
         trace "Error requiring #{file} [#{ex.to_s}]"
-        return ex.to_s
+        return format_ex_in_file(file, ex)
       end
       output = []
       @result = Test::Unit::TestResult.new
@@ -101,7 +109,7 @@ module Hydra #:nodoc:
       begin
         klasses.each{|klass| klass.suite.run(@result){|status, name| ;}}
       rescue => ex
-        output << ex.to_s
+        output << format_ex_in_file(file, ex)
       end
 
       return output.join("\n")
