@@ -87,6 +87,7 @@ module Hydra #:nodoc:
       @event_listeners.each{|l| l.testing_begin(@files) }
 
       boot_workers worker_cfg
+      trap_signals
       process_messages
     end
 
@@ -150,11 +151,6 @@ module Hydra #:nodoc:
         else
           raise "Worker type not recognized: (#{type.to_s})"
         end
-      end
-
-      Signal.trap "SIGTERM" do
-        shutdown_all_workers
-        exit
       end
     end
 
@@ -251,7 +247,7 @@ module Hydra #:nodoc:
         Signal.trap signal do
           trace "Caught signal #{signal}, shutting down."
           shutdown_all_workers
-          exit 
+          exit 1
         end
       end
     end
